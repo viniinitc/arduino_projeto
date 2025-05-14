@@ -22,10 +22,10 @@ void loop() {
   Serial.println(palma);
   if (digitalRead(OUT_PIN) == 1){
     digitalWrite(4, HIGH);
-    if (millis() - del > 100){
+    if (millis() - del > 200){
       palma += 1;
     }
-    if ((millis() - del > 500)){ 
+    if ((millis() - del > 200)){ 
       if ((millis() - del < 1500) && millis() - del < 5000) {
         palma = 0;
       }
