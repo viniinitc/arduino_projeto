@@ -1,21 +1,56 @@
-#include "HX711.h"
-#define CELULA_DT  11
-#define CELULA_SCK  10
-HX711 escala;
-float fator_calib = -10000; // Coloque aqui o valor encontrado na calibração
-void setup() {
-  
+#include <HX711.h> 
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x20,16,2); //endereçamento do LCD
+
+//configuracao dos pinos para o modulo HX711
+const int PINO_DT = 3;
+const int PINO_SCK = 2;
+
+//declaracao do intervalo de espera
+const int TEMPO_ESPERA = 500;
+
+HX711 escala; //declaracao do objeto ESCALA na classe HX711 da biblioteca
+
+const long FATOR_CALIBRACAO = -44999; //esse valor deve ser alterado para o valor de calibracao obtido com o outro codigo
+
+void setup ()
+{
+
+  //mensagens do LCD
   Serial.begin(9600);
-  Serial.println("Rotina de medida com a célula de carga.");
-  escala.begin(CELULA_DT, CELULA_SCK);
-  escala.set_scale(fator_calib); // Ajusta a escala
-  escala.tare(); // Ajusta o zero da escala
-}
-void loop() {
-  Serial.print("Leitura: ");
-  Serial.print(escala.get_units(10), 2); // Retorna a média de 10 medidas
-  Serial.print(" kg");
-  Serial.println();
-  delay(1000);
   
+  
+
+  Serial.print("    ");
+  Serial.println("RoboCore");
+  delay(TEMPO_ESPERA);
+  
+
+  escala.begin (PINO_DT, PINO_SCK); //inicializacao e definicao dos pinos DT e SCK dentro do objeto ESCALA
+  
+  escala.tare(); //zera a escala
+
+  escala.set_scale(FATOR_CALIBRACAO); //ajusta a escala para o fator de calibracao
+  
+}
+
+void loop ()
+{
+  //verifica se o modulo esta pronto para realizar leituras
+  if (escala.is_ready())
+  {
+  //mensagens de leitura no monitor serial
+    Serial.print(" Peso: ");
+    Serial.print(escala.get_units(), 1); //retorna a leitura da variavel escala com a unidade quilogramas
+    Serial.println(" kg");
+  
+  }
+  else
+  {
+    Serial.print(" Aguarde  . . . ");
+  }
+  delay(TEMPO_ESPERA); //intervalo de espera para leitura
+ 
 }
