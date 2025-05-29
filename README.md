@@ -8,10 +8,10 @@ Este Escape Room foi projetado para oferecer uma experiência imersiva totalment
 - O jogo começa com uma **narrativa introdutória**, que contextualiza a história e o ambiente do Escape Room.
 - Ao longo da jornada, o participante será guiado exclusivamente por suas **interações sensoriais** com o ambiente, como sons, texturas e vibrações.
 - Os enigmas devem ser solucionados com base nessas percepções sensoriais.
-- O jogador **só concluirá o jogo** ao resolver corretamente todos os desafios e liberar a saída.
+- O jogador **só concluirá o jogo** ao resolver corretamente todos os desafios e liberar a saída ou o tempo se esgotar.
 
 ## Duração
-- Tempo estimado de jogo: **15 minutos**
+- Tempo estimado de jogo: **15-20 minutos**
 
 ## Objetivo
 Proporcionar uma vivência inclusiva, desafiadora e imersiva que estimule os sentidos e a criatividade do jogador sem o uso da visão.
