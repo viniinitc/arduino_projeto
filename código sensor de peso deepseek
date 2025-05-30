@@ -15,6 +15,25 @@ HX711 escala; //declaracao do objeto ESCALA na classe HX711 da biblioteca
 
 const long FATOR_CALIBRACAO = -44999; //esse valor deve ser alterado para o valor de calibracao obtido com o outro codigo
 
+int inches = 0;
+
+int cm = 0;
+
+long readUltrasonicDistance(int triggerPin, int echoPin)
+
+{
+  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigger pin to HIGH state for 10 microseconds
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  // Reads the echo pin, and returns the sound wave travel time in microseconds
+  return pulseIn(echoPin, HIGH);
+
+}
 void setup ()
 {
 
@@ -38,18 +57,29 @@ void setup ()
 
 void loop ()
 {
-  //verifica se o modulo esta pronto para realizar leituras
-  if (escala.is_ready())
-  {
+  Serial.begin(9600);
+
+  if (escala.is_ready()){
   //mensagens de leitura no monitor serial
     Serial.print(" Peso: ");
     Serial.print(escala.get_units(), 1); //retorna a leitura da variavel escala com a unidade quilogramas
     Serial.println(" kg");
   
-  }
-  else
-  {
+    }
+  
+else{
     Serial.print(" Aguarde  . . . ");
+  }
+  
+  cm = 0.01723 * readUltrasonicDistance(5, 4);
+  inches = (cm / 2.54);
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.println("cm");
+  if (cm < 50) {
+    Serial.print("Muito perto");
+    //coloca aqui o código do mp3
   }
   delay(TEMPO_ESPERA); //intervalo de espera para leitura
  
