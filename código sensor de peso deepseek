@@ -1,54 +1,86 @@
-#include "HX711.h"
+#include <HX711.h> 
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
-// Definição dos pinos
-const int LOADCELL_DOUT_PIN = 3;  // Pino DT do HX711
-const int LOADCELL_SCK_PIN = 2;   // Pino SCK do HX711
+LiquidCrystal_I2C lcd(0x20,16,2); //endereçamento do LCD
 
-// Inicialização do HX711
-HX711 scale;
+//configuracao dos pinos para o modulo HX711
+const int PINO_DT = 3;
+const int PINO_SCK = 2;
 
-// Fator de calibração (ajustar durante a calibração)
-float calibration_factor = -7050; // Valor negativo para células de carga que comprimem
+//declaracao do intervalo de espera
+const int TEMPO_ESPERA = 500;
 
-void setup() {
+HX711 escala; //declaracao do objeto ESCALA na classe HX711 da biblioteca
+
+const long FATOR_CALIBRACAO = -44999; //esse valor deve ser alterado para o valor de calibracao obtido com o outro codigo
+
+int inches = 0;
+
+int cm = 0;
+
+long readUltrasonicDistance(int triggerPin, int echoPin)
+
+{
+  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigger pin to HIGH state for 10 microseconds
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  // Reads the echo pin, and returns the sound wave travel time in microseconds
+  return pulseIn(echoPin, HIGH);
+
+}
+void setup ()
+{
+
+  //mensagens do LCD
   Serial.begin(9600);
-  Serial.println("Inicializando a balança...");
   
-  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   
-  Serial.println("Antes de começar, remova qualquer peso da balança.");
-  Serial.println("Após iniciar as leituras, coloque um peso conhecido na balança.");
-  Serial.println("Pressione + ou a para aumentar o fator de calibração");
-  Serial.println("Pressione - ou z para diminuir o fator de calibração");
+
+  Serial.print("    ");
+  Serial.println("RoboCore");
+  delay(TEMPO_ESPERA);
   
-  scale.set_scale();
-  scale.tare(); // Zera a balança
+
+  escala.begin (PINO_DT, PINO_SCK); //inicializacao e definicao dos pinos DT e SCK dentro do objeto ESCALA
   
-  long zero_factor = scale.read_average(); // Lê o valor zerado
-  Serial.print("Fator de zero: "); // Deve ser próximo de zero
-  Serial.println(zero_factor);
+  escala.tare(); //zera a escala
+
+  escala.set_scale(FATOR_CALIBRACAO); //ajusta a escala para o fator de calibracao
+  
 }
 
-void loop() {
-  scale.set_scale(calibration_factor); // Ajusta com o fator de calibração
+void loop ()
+{
+  Serial.begin(9600);
+
+  if (escala.is_ready()){
+  //mensagens de leitura no monitor serial
+    Serial.print(" Peso: ");
+    Serial.print(escala.get_units(), 1); //retorna a leitura da variavel escala com a unidade quilogramas
+    Serial.println(" kg");
   
-  Serial.print("Leitura: ");
-  Serial.print(scale.get_units(), 1); // Mostra com 1 casa decimal
-  Serial.print(" kg"); // Unidade de medida (ajustar conforme necessidade)
-  Serial.print(" Fator de calibração: ");
-  Serial.print(calibration_factor);
-  Serial.println();
+    }
   
-  // Ajuste do fator de calibração via serial
-  if(Serial.available()) {
-    char temp = Serial.read();
-    if(temp == '+' || temp == 'a')
-      calibration_factor += 10;
-    else if(temp == '-' || temp == 'z')
-      calibration_factor -= 10;
-    else if(temp == 't') // Tare (zerar)
-      scale.tare();
+else{
+    Serial.print(" Aguarde  . . . ");
   }
   
-  delay(500); // Intervalo entre leituras
+  cm = 0.01723 * readUltrasonicDistance(5, 4);
+  inches = (cm / 2.54);
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.println("cm");
+  if (cm < 50) {
+    Serial.print("Muito perto");
+    //coloca aqui o código do mp3
+  }
+  delay(TEMPO_ESPERA); //intervalo de espera para leitura
+ 
 }
